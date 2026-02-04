@@ -17,24 +17,26 @@
             --bg-tertiary: #252525;
             --text-primary: #e8e8e8;
             --text-secondary: #a0a0a0;
-            --accent: #8b5cf6;
-            --accent-hover: #7c3aed;
-            --accent-secondary: #06b6d4;
+            --accent: #C8A2A8;
+            --accent-hover: #b88d94;
+            --accent-secondary: #AFC3D6;
+            --accent-success: #879A77;
             --border: #2a2a2a;
             --shadow: rgba(0, 0, 0, 0.5);
         }
 
         [data-theme="light"] {
-            --bg-primary: #f8f9fa;
+            --bg-primary: #D7E5F0;
             --bg-secondary: #ffffff;
-            --bg-tertiary: #f1f3f5;
-            --text-primary: #1f2937;
-            --text-secondary: #6b7280;
-            --accent: #8b5cf6;
-            --accent-hover: #7c3aed;
-            --accent-secondary: #06b6d4;
-            --border: #e5e7eb;
-            --shadow: rgba(0, 0, 0, 0.1);
+            --bg-tertiary: #C9AD93;
+            --text-primary: #000000;
+            --text-secondary: #554940;
+            --accent: #C8A2A8;
+            --accent-hover: #b8929a;
+            --accent-secondary: #AFC3D6;
+            --accent-success: #879A77;
+            --border: #D6C9CC;
+            --shadow: rgba(85, 73, 64, 0.15);
         }
 
         body {
@@ -230,7 +232,7 @@
         select:focus, input[type="number"]:focus {
             outline: none;
             border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+            box-shadow: 0 0 0 3px rgba(200, 162, 168, 0.2);
             transform: translateY(-1px);
         }
 
@@ -297,7 +299,7 @@
         }
 
         [data-theme="light"] .filename-input {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(201, 173, 147, 0.95);
             color: var(--text-primary);
         }
 
@@ -306,13 +308,18 @@
         }
 
         [data-theme="light"] .filename-input:hover {
-            background: rgba(255, 255, 255, 1);
+            background: rgba(201, 173, 147, 1);
         }
 
         .filename-input:focus {
             outline: none;
             background: linear-gradient(135deg, rgba(139, 92, 246, 0.9), rgba(6, 182, 212, 0.9));
             color: white;
+        }
+
+        [data-theme="light"] .filename-input:focus {
+            background: linear-gradient(135deg, rgba(200, 162, 168, 0.95), rgba(175, 195, 214, 0.95));
+            color: var(--text-primary);
         }
 
         .upload-area {
@@ -487,7 +494,7 @@
                     </svg>
                 </div>
             </button>
-            <h1>Image Comparer</h1>
+            <h1>Compare Image</h1>
             <p class="subtitle">Visual comparison made simple</p>
         </header>
 
@@ -495,7 +502,7 @@
             <div class="control-group">
                 <div class="control-item">
                     <label for="imageCount">Number of Images</label>
-                    <input type="number" id="imageCount" min="1" max="12" value="4">
+                    <input type="number" id="imageCount" min="1" max="12" value="2">
                 </div>
                 <div class="control-item">
                     <label for="layout">Layout</label>
@@ -527,8 +534,8 @@
             localStorage.setItem('theme', newTheme);
         });
 
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme') || 'dark';
+        // Load saved theme (default to light)
+        const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
 
         // Generate layout options based on image count
@@ -544,8 +551,15 @@
                 }
             }
 
-            // Sort by preference (more square-like first)
+            // Sort by preference (vertical layouts like 1x2 first, then square-like)
             layouts.sort((a, b) => {
+                // Prioritize 1xN layouts (single row)
+                const aIsOneRow = a.rows === 1;
+                const bIsOneRow = b.rows === 1;
+                if (aIsOneRow && !bIsOneRow) return -1;
+                if (!aIsOneRow && bIsOneRow) return 1;
+
+                // Then sort by how square-like they are
                 const diffA = Math.abs(a.rows - a.cols);
                 const diffB = Math.abs(b.rows - b.cols);
                 return diffA - diffB;
